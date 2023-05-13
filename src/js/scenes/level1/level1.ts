@@ -1,8 +1,8 @@
 import { Scene, Tilemaps } from 'phaser';
 import { Player } from '../../gameObjects/player';
-import { gameObjectsToObjectPoints } from '../../../helpers/gameobject-to-object-point';
+import { gameObjectsToObjectPoints } from '../../helpers/gameobject-to-object-point';
 import { EVENTS_NAME } from '../../../consts';
-import { Enemy } from '../../../classes/enemy';
+import { Enemy } from '../../gameObjects/enemy';
 
 export class Level1 extends Scene {
     private player!: Player;
@@ -20,6 +20,7 @@ export class Level1 extends Scene {
     }
 
     create(): void {
+        window.currentScene = this;
         this.initMap();
         this.player = new Player(this, 200, 600);
         this.physics.add.collider(this.player, this.wallsLayer);
@@ -42,12 +43,7 @@ export class Level1 extends Scene {
         this.groundLayer = this.map.createLayer('Ground', this.tileset, 0, 0);
         this.wallsLayer = this.map.createLayer('Walls', this.tileset, 0, 0);
         this.wallsLayer.setCollisionByProperty({ collides: true });
-        this.physics.world.setBounds(
-            0,
-            0,
-            this.wallsLayer.width,
-            this.wallsLayer.height
-        );
+        this.physics.world.setBounds(0, 0, this.wallsLayer.width, this.wallsLayer.height);
 
         // this.showDebugWalls();
     }
@@ -65,9 +61,7 @@ export class Level1 extends Scene {
             this.map.filterObjects('Chests', (obj) => obj.name === 'ChestPoint')
         );
         this.chests = chestPoints.map((chestPoint) =>
-            this.physics.add
-                .sprite(chestPoint.x, chestPoint.y, 'tiles_spr', 595)
-                .setScale(1.5)
+            this.physics.add.sprite(chestPoint.x, chestPoint.y, 'tiles_spr', 595).setScale(1.5)
         );
         this.chests.forEach((chest) => {
             this.physics.add.overlap(this.player, chest, (obj1, obj2) => {
@@ -79,30 +73,17 @@ export class Level1 extends Scene {
     }
 
     private initCamera(): void {
-        this.cameras.main.setSize(
-            this.game.scale.width,
-            this.game.scale.height
-        );
+        this.cameras.main.setSize(this.game.scale.width, this.game.scale.height);
         this.cameras.main.startFollow(this.player, true, 0.09, 0.09);
         this.cameras.main.setZoom(1);
     }
 
     private initEnemies(): void {
         const enemiesPoints = gameObjectsToObjectPoints(
-            this.map.filterObjects(
-                'Enemies',
-                (obj) => obj.name === 'EnemyPoint'
-            )
+            this.map.filterObjects('Enemies', (obj) => obj.name === 'EnemyPoint')
         );
         this.enemies = enemiesPoints.map((enemyPoint) =>
-            new Enemy(
-                this,
-                enemyPoint.x,
-                enemyPoint.y,
-                'tiles_spr',
-                this.player,
-                503
-            )
+            new Enemy(this, enemyPoint.x, enemyPoint.y, 'tiles_spr', this.player, 503)
                 .setName(enemyPoint.id.toString())
                 .setScale(1.5)
         );

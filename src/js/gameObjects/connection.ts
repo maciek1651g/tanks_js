@@ -1,0 +1,53 @@
+import { OtherPlayer } from './otherPlayer';
+
+export interface TransferData {
+    id: string;
+    messageType: 'player';
+    coordinates: { x: number; y: number };
+    hp: number;
+}
+
+export class Connection {
+    socket: WebSocket;
+    syncObjects: { [key: string]: any } = {};
+
+    constructor(url = 'ws://localhost:8080/tanks/objects:exchange') {
+        this.socket = new WebSocket(url);
+
+        this.socket.onopen = () => {
+            console.log('connected');
+        };
+
+        this.socket.onmessage = (event) => {
+            try {
+                const data: TransferData = JSON.parse(event.data);
+                if (!this.syncObjects[data.id]) {
+                    this.syncObjects[data.id] = new OtherPlayer(
+                        window.currentScene,
+                        data.coordinates.x,
+                        data.coordinates.y,
+                        data.id
+                    );
+                } else {
+                    this.syncObjects[data.id].setPosition(data.coordinates.x, data.coordinates.y);
+                }
+            } catch (e) {
+                console.log(e);
+            }
+        };
+
+        this.socket.onerror = (error) => {
+            console.log(error);
+        };
+
+        this.socket.onclose = (close) => {
+            console.log('closed');
+        };
+    }
+
+    public send(message: TransferData): void {
+        if (this.socket.readyState === WebSocket.OPEN) {
+            this.socket.send(JSON.stringify(message));
+        }
+    }
+}

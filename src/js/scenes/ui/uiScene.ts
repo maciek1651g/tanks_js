@@ -1,5 +1,5 @@
 import { Scene } from 'phaser';
-import { Score, ScoreOperations } from '../../../classes/score';
+import { Score, ScoreOperations } from '../../gameObjects/score';
 import { EVENTS_NAME } from '../../../consts';
 
 export class UIScene extends Scene {

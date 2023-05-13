@@ -1,21 +1,14 @@
 import { Math, Scene } from 'phaser';
-import { Actor } from '../js/gameObjects/actor';
-import { Player } from '../js/gameObjects/player';
-import { EVENTS_NAME } from '../consts';
+import { Actor } from './actor';
+import { Player } from './player';
+import { EVENTS_NAME } from '../../consts';
 
 export class Enemy extends Actor {
     private target: Player;
     private AGRESSOR_RADIUS = 100;
     private attackHandler: () => void;
 
-    constructor(
-        scene: Phaser.Scene,
-        x: number,
-        y: number,
-        texture: string,
-        target: Player,
-        frame?: string | number
-    ) {
+    constructor(scene: Phaser.Scene, x: number, y: number, texture: string, target: Player, frame?: string | number) {
         super(scene, x, y, texture, frame);
         this.target = target;
         // ADD TO SCENE
@@ -28,10 +21,8 @@ export class Enemy extends Actor {
         // ATACK HANDLER
         this.attackHandler = () => {
             if (
-                Phaser.Math.Distance.BetweenPoints(
-                    { x: this.x, y: this.y },
-                    { x: this.target.x, y: this.target.y }
-                ) < this.target.width
+                Phaser.Math.Distance.BetweenPoints({ x: this.x, y: this.y }, { x: this.target.x, y: this.target.y }) <
+                this.target.width
             ) {
                 this.getDamage();
                 this.disableBody(true, false);
@@ -44,19 +35,14 @@ export class Enemy extends Actor {
         // EVENTS
         this.scene.game.events.on(EVENTS_NAME.attack, this.attackHandler, this);
         this.on('destroy', () => {
-            this.scene.game.events.removeListener(
-                EVENTS_NAME.attack,
-                this.attackHandler
-            );
+            this.scene.game.events.removeListener(EVENTS_NAME.attack, this.attackHandler);
         });
     }
 
     preUpdate(): void {
         if (
-            Phaser.Math.Distance.BetweenPoints(
-                { x: this.x, y: this.y },
-                { x: this.target.x, y: this.target.y }
-            ) < this.AGRESSOR_RADIUS
+            Phaser.Math.Distance.BetweenPoints({ x: this.x, y: this.y }, { x: this.target.x, y: this.target.y }) <
+            this.AGRESSOR_RADIUS
         ) {
             this.getBody().setVelocityX(this.target.x - this.x);
             this.getBody().setVelocityY(this.target.y - this.y);

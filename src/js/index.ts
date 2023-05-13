@@ -1,13 +1,15 @@
-import { Game, Types } from 'phaser';
+import { Game, Scene, Types } from 'phaser';
 import { LoadingScene } from './scenes/loadingScene';
 import { Level1 } from './scenes/level1/level1';
 import { UIScene } from './scenes/ui/uiScene';
+import { Connection } from './gameObjects/connection';
 
 declare global {
     interface Window {
         sizeChanged: () => void;
         game: Phaser.Game;
-        socket: WebSocket;
+        connection: Connection;
+        currentScene: Scene;
     }
 }
 
@@ -58,13 +60,4 @@ window.sizeChanged = () => {
 window.onresize = () => window.sizeChanged();
 
 window.game = new Game(gameConfig);
-
-// create new connection using websocket
-const socket = new WebSocket('ws://localhost:8080/tanks/objects:exchange');
-socket.onopen = () => {
-    console.log('connected');
-    socket.onmessage = (event) => {
-        console.log(event.data);
-    };
-    window.socket = socket;
-};
+window.connection = new Connection();
