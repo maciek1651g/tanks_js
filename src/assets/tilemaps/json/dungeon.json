@@ -282,9 +282,56 @@
          "visible":true,
          "x":0,
          "y":0
+        }, 
+        {
+         "draworder":"topdown",
+         "id":5,
+         "name":"Enemies",
+         "objects":[
+                {
+                 "height":0,
+                 "id":5,
+                 "name":"EnemyPoint",
+                 "point":true,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":327.485380116959,
+                 "y":1126.54970760234
+                }, 
+                {
+                 "height":0,
+                 "id":6,
+                 "name":"EnemyPoint",
+                 "point":true,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":692.397660818714,
+                 "y":692.397660818714
+                }, 
+                {
+                 "height":0,
+                 "id":7,
+                 "name":"EnemyPoint",
+                 "point":true,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":1130.29239766082,
+                 "y":1126.54970760234
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
         }],
- "nextlayerid":5,
- "nextobjectid":5,
+ "nextlayerid":6,
+ "nextobjectid":8,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.10.1",

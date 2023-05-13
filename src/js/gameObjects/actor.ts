@@ -19,20 +19,23 @@ export class Actor extends Physics.Arcade.Sprite {
     }
 
     public getDamage(value?: number): void {
-        this.scene.tweens.add({
-            targets: this,
-            duration: 100,
-            repeat: 3,
-            yoyo: true,
-            onStart: () => {
-                if (value) {
-                    this.hp = this.hp - value;
-                }
-            },
-            onComplete: () => {
-                this.setAlpha(1);
-            },
-        });
+        if (value) {
+            this.hp = this.hp - value;
+        }
+        // this.scene.tweens.add({
+        //     targets: this,
+        //     duration: 100,
+        //     repeat: 3,
+        //     yoyo: true,
+        //     onStart: () => {
+        //         if (value) {
+        //             this.hp = this.hp - value;
+        //         }
+        //     },
+        //     onComplete: () => {
+        //         this.setAlpha(1);
+        //     },
+        // });
     }
 
     public getHPValue(): number {
