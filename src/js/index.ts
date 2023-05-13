@@ -6,6 +6,7 @@ declare global {
     interface Window {
         sizeChanged: () => void;
         game: Phaser.Game;
+        socket: WebSocket;
     }
 }
 
@@ -56,3 +57,13 @@ window.sizeChanged = () => {
 window.onresize = () => window.sizeChanged();
 
 window.game = new Game(gameConfig);
+
+// create new connection using websocket
+const socket = new WebSocket('ws://localhost:8080/tanks/objects:exchange');
+socket.onopen = () => {
+    console.log('connected');
+    socket.onmessage = (event) => {
+        console.log(event.data);
+    };
+    window.socket = socket;
+};

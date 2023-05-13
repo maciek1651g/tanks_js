@@ -7,10 +7,23 @@ export class LoadingScene extends Scene {
 
     preload(): void {
         this.load.baseURL = './../../assets/';
-        this.load.image('king', 'sprites/Tank_top_model.png');
-    }
 
-    
+        // Loading king sprite
+        this.load.image('king', 'sprites/Tank_top_model.png');
+
+        // Loading tilemap
+        this.load.image({
+            key: 'tiles',
+            url: 'tilemaps/tiles/dungeon-16-16.png',
+        });
+        this.load.tilemapTiledJSON('dungeon', 'tilemaps/json/dungeon.json');
+
+        //Loading spritesheet, we will use it for chest sprite
+        this.load.spritesheet('tiles_spr', 'tilemaps/tiles/dungeon-16-16.png', {
+            frameWidth: 16,
+            frameHeight: 16,
+        });
+    }
 
     create(): void {
         this.scene.start('level1-scene');
