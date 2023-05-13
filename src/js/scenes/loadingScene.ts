@@ -7,8 +7,10 @@ export class LoadingScene extends Scene {
 
     preload(): void {
         this.load.baseURL = './../../assets/';
-        this.load.image('Tank_top_model', 'sprites/Tank_top_model.png');
+        this.load.image('king', 'sprites/Tank_top_model.png');
     }
+
+    
 
     create(): void {
         this.scene.start('level1-scene');
