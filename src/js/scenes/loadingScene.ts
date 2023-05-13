@@ -9,8 +9,7 @@ export class LoadingScene extends Scene {
         this.load.baseURL = './../../assets/';
 
         // Loading king sprite
-        //this.load.image('king', 'sprites/Tank_top_model.png');
-        this.load.image('king', 'sprites/king.png');
+        this.load.image('king', 'sprites/Tank_top_model.png');
 
         // Loading tilemap
         this.load.image({
