@@ -11,7 +11,17 @@ export class Connection {
     socket: WebSocket;
     syncObjects: { [key: string]: any } = {};
 
-    constructor(url = 'ws://localhost:8080/tanks/objects:exchange') {
+    constructor() {
+        const hostname = window.location.hostname;
+        let port = '';
+        let protocol = 'wss';
+
+        if (hostname === 'localhost') {
+            port = ':8080';
+            protocol = 'ws';
+        }
+
+        const url = `${protocol}://${hostname}${port}/tanks/objects:exchange`;
         this.socket = new WebSocket(url);
 
         this.socket.onopen = () => {
