@@ -12,13 +12,15 @@ export class Connection {
     syncObjects: { [key: string]: any } = {};
 
     constructor() {
-        const hostname = window.location.hostname;
+        let hostname = window.location.hostname;
         let port = '';
         let protocol = 'wss';
 
         if (hostname === 'localhost') {
             port = ':8080';
             protocol = 'ws';
+        } else if (window.location.hostname.includes('github.io')) {
+            hostname = 'tanks-maciejdominiak.b4a.run';
         }
 
         const url = `${protocol}://${hostname}${port}/tanks/objects:exchange`;

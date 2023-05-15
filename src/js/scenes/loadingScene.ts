@@ -6,7 +6,11 @@ export class LoadingScene extends Scene {
     }
 
     preload(): void {
-        this.load.baseURL = './../../assets/';
+        if (window.location.hostname.includes('github.io')) {
+            this.load.baseURL = 'https://maciek1651g.github.io/tanks_js/assets/';
+        } else {
+            this.load.baseURL = './../../assets/';
+        }
 
         // Loading king sprite
         this.load.image('king', 'sprites/Tank_top_model.png');

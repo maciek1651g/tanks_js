@@ -8,7 +8,8 @@
         "test": "echo \"Error: no test specified\" && exit 1",
         "start": "webpack serve --mode development",
         "build": "webpack --mode production",
-        "predeploy": "npm run build",
+        "build-gh": "webpack --mode=development",
+        "predeploy": "npm run build-gh",
         "deploy": "gh-pages -d dist"
     },
     "repository": {
