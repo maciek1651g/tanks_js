@@ -41,6 +41,8 @@ export class Player extends Actor {
 
         // Player id
         this.playerId = Math.random().toString(36).substr(2, 9);
+
+        this.initAnimations();
     }
 
     update(): void {
@@ -86,5 +88,16 @@ export class Player extends Actor {
     public getDamage(value?: number): void {
         super.getDamage(value);
         this.hpValue.setText(this.hp.toString());
+    }
+
+    private initAnimations(): void {
+        this.scene.anims.create({
+            key: 'attack',
+            frames: this.scene.anims.generateFrameNames('a-king', {
+                prefix: 'attack-',
+                end: 2,
+            }),
+            frameRate: 8,
+        });
     }
 }
