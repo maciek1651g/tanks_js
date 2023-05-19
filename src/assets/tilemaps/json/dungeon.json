@@ -243,6 +243,18 @@
                 }, 
                 {
                  "height":0,
+                 "id":8,
+                 "name":"ChestPoint",
+                 "point":true,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":1018,
+                 "y":292
+                }, 
+                {
+                 "height":0,
                  "id":2,
                  "name":"ChestPoint",
                  "point":true,
@@ -250,8 +262,8 @@
                  "type":"",
                  "visible":true,
                  "width":0,
-                 "x":1012,
-                 "y":784
+                 "x":1011,
+                 "y":779
                 }, 
                 {
                  "height":0,
@@ -309,8 +321,80 @@
                  "type":"",
                  "visible":true,
                  "width":0,
-                 "x":692.397660818714,
-                 "y":692.397660818714
+                 "x":688.397660818714,
+                 "y":760.397660818714
+                }, 
+                {
+                 "height":0,
+                 "id":13,
+                 "name":"EnemyPoint",
+                 "point":true,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":1328.39766081871,
+                 "y":732.397660818714
+                }, 
+                {
+                 "height":0,
+                 "id":14,
+                 "name":"EnemyPoint",
+                 "point":true,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":732.397660818714,
+                 "y":368.397660818714
+                }, 
+                {
+                 "height":0,
+                 "id":9,
+                 "name":"EnemyPoint",
+                 "point":true,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":336.397660818714,
+                 "y":1444.39766081871
+                }, 
+                {
+                 "height":0,
+                 "id":10,
+                 "name":"EnemyPoint",
+                 "point":true,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":872.397660818714,
+                 "y":1476.39766081871
+                }, 
+                {
+                 "height":0,
+                 "id":11,
+                 "name":"EnemyPoint",
+                 "point":true,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":336.397660818714,
+                 "y":320.397660818714
+                }, 
+                {
+                 "height":0,
+                 "id":12,
+                 "name":"EnemyPoint",
+                 "point":true,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":1380.39766081871,
+                 "y":408.397660818714
                 }, 
                 {
                  "height":0,
@@ -321,8 +405,8 @@
                  "type":"",
                  "visible":true,
                  "width":0,
-                 "x":1130.29239766082,
-                 "y":1126.54970760234
+                 "x":1085.29239766082,
+                 "y":1099.54970760234
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -331,7 +415,7 @@
          "y":0
         }],
  "nextlayerid":6,
- "nextobjectid":8,
+ "nextobjectid":15,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.10.1",
