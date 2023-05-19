@@ -14,7 +14,7 @@ declare global {
 }
 
 const gameConfig: Types.Core.GameConfig = {
-    title: 'Phaser game tutorial',
+    title: 'Phaser game',
     type: Phaser.WEBGL,
     parent: 'game',
     backgroundColor: '#351f1b',
@@ -59,5 +59,5 @@ window.sizeChanged = () => {
 };
 window.onresize = () => window.sizeChanged();
 
-window.game = new Game(gameConfig);
 window.connection = new Connection();
+window.game = new Game(gameConfig);

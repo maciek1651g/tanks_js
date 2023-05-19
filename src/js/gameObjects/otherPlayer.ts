@@ -22,10 +22,19 @@ export class OtherPlayer extends Actor {
         this.playerId = playerId;
     }
 
-    update(): void {
+    updatePlayer(x: number, y: number, hp: number): void {
+        // MOVEMENT update
+        this.setPosition(x, y);
+
         // HP update
+        this.hp = hp;
         this.hpValue.setPosition(this.x, this.y - this.height * 0.4);
         this.hpValue.setOrigin(0.8, 0.5);
+    }
+
+    deletePlayer(): void {
+        this.hpValue.destroy(true);
+        this.destroy(true);
     }
 
     public getDamage(value?: number): void {
