@@ -4,7 +4,7 @@ import { CreateOtherPlayer, ServerMessage, ClientMessage, UpdateOtherPlayer, Use
 
 export interface GamePlayerData {
     id: string;
-    coordinates: { x: number; y: number };
+    coordinates: { x: number; y: number; directionX: -1 | 1 };
     health: number;
     directionX: -1 | 1;
 }
@@ -26,7 +26,7 @@ export class Connection {
         setTimeout(() => {
             this.initConnection();
             this.initCallbacks();
-        }, 500);
+        }, 1500);
     }
 
     public send(message: ClientMessage): void {
@@ -59,7 +59,7 @@ export class Connection {
         } else {
             this.gamePlayerData = {
                 id: uid(),
-                coordinates: { x: 200, y: 600 },
+                coordinates: { x: 200, y: 600, directionX: 1 },
                 health: 100,
                 directionX: 1,
             };
@@ -107,7 +107,7 @@ export class Connection {
                             this.syncObjects.delete(data.id);
                         }
                         break;
-                    case 'update':
+                    case 'status':
                         if (!this.syncObjects.has(data.id)) {
                             this.syncObjects.set(
                                 data.id,
@@ -117,7 +117,12 @@ export class Connection {
                             if (this.syncObjects.get(data.id) instanceof OtherPlayer) {
                                 this.syncObjects
                                     .get(data.id)
-                                    .updatePlayer(data.coordinates.x, data.coordinates.y, data.health);
+                                    .updatePlayer(
+                                        data.coordinates.x,
+                                        data.coordinates.y,
+                                        data.coordinates.directionX,
+                                        data.health
+                                    );
                             }
                         }
 

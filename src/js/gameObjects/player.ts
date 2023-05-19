@@ -84,10 +84,9 @@ export class Player extends Actor {
     private sendUpdate(attack?: boolean): void {
         const newMessage: ClientMessage = {
             id: this.playerId,
-            messageType: 'update',
-            coordinates: { x: Math.round(this.x), y: Math.round(this.y) },
+            messageType: 'status',
+            coordinates: { x: Math.round(this.x), y: Math.round(this.y), directionX: this.scaleX as -1 | 1 },
             health: this.hp,
-            directionX: this.scaleX as -1 | 1,
             playAttack: attack ?? false,
         };
         if (JSON.stringify(newMessage) !== JSON.stringify(this.lastSendMessage)) {
