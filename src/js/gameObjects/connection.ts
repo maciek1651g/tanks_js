@@ -23,11 +23,6 @@ export class Connection {
 
     constructor() {
         this.initLocalData();
-
-        setTimeout(() => {
-            this.initConnection();
-            this.initCallbacks();
-        }, 1500);
     }
 
     public send(message: ClientMessage): void {
@@ -48,12 +43,18 @@ export class Connection {
 
     public initScene(scene: Phaser.Scene): Player {
         this.scene = scene;
+        this.startConnection();
         return new Player(
             scene,
             this.gamePlayerData.coordinates.x,
             this.gamePlayerData.coordinates.y,
             this.gamePlayerData.id
         );
+    }
+
+    private startConnection(): void {
+        this.initConnection();
+        this.initCallbacks();
     }
 
     private initLocalData(): void {
@@ -148,6 +149,9 @@ export class Connection {
                             this.syncObjects.delete(data.id);
                         }
                         break;
+                    default:
+                        // @ts-ignore
+                        console.log(data.messageType, 'not implemented');
                 }
             } catch (e) {
                 console.log(e);
