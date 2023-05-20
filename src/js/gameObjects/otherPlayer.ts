@@ -33,6 +33,10 @@ export class OtherPlayer extends Actor {
         this.hpValue.setOrigin(0.8, 0.5);
     }
 
+    attack(): void {
+        this.anims.play('attack', true);
+    }
+
     deletePlayer(): void {
         this.hpValue.destroy(true);
         this.destroy(true);

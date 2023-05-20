@@ -3,10 +3,9 @@ import { Player } from '../../gameObjects/player';
 import { gameObjectsToObjectPoints } from '../../helpers/gameobject-to-object-point';
 import { EVENTS_NAME } from '../../../consts';
 import { Enemy } from '../../gameObjects/enemy';
-import { OtherPlayer } from '../../gameObjects/otherPlayer';
 
 export class Level1 extends Scene {
-    private player!: Player;
+    public player!: Player;
 
     private chests!: Phaser.GameObjects.Sprite[];
     private enemies!: Enemy[];
@@ -24,7 +23,7 @@ export class Level1 extends Scene {
         this.initMap();
         this.player = window.connection.initScene(this);
         this.physics.add.collider(this.player, this.wallsLayer);
-        this.initChests();
+        // this.initChests();
         this.initEnemies();
         this.initCamera();
     }

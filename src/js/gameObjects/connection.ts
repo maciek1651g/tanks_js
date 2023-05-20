@@ -1,6 +1,7 @@
 import { OtherPlayer } from './otherPlayer';
 import { Player } from './player';
-import { CreateOtherPlayer, ServerMessage, ClientMessage, UpdateOtherPlayer, UserDisconnected } from '../helpers/types';
+import { ServerMessage, ClientMessage, DTO } from '../helpers/types';
+import { Chest } from './chest';
 
 export interface GamePlayerData {
     id: string;
@@ -31,7 +32,11 @@ export class Connection {
 
     public send(message: ClientMessage): void {
         if (this.socket?.readyState === WebSocket.OPEN) {
-            this.socket.send(JSON.stringify(message));
+            const messageDTO: DTO = {
+                messageType: message.messageType,
+                data: JSON.stringify(message),
+            };
+            this.socket.send(JSON.stringify(messageDTO));
         }
     }
 
@@ -85,7 +90,7 @@ export class Connection {
 
     private initCallbacks(): void {
         this.socket.onopen = (ev: Event) => {
-            this.send({ ...this.gamePlayerData, messageType: 'create_player' });
+            this.socket.send(JSON.stringify({ ...this.gamePlayerData, messageType: 'create_player' }));
             console.log('connected');
         };
 
@@ -125,7 +130,23 @@ export class Connection {
                                     );
                             }
                         }
-
+                        break;
+                    case 'user_attack':
+                        if (this.syncObjects.get(data.id) instanceof OtherPlayer) {
+                            this.syncObjects.get(data.id).attack();
+                        }
+                        break;
+                    case 'create_chest':
+                        this.syncObjects.set(
+                            data.id,
+                            new Chest(this.scene, data.coordinates.x, data.coordinates.y, data.id)
+                        );
+                        break;
+                    case 'chest_destroy':
+                        if (this.syncObjects.get(data.id) instanceof Chest) {
+                            this.syncObjects.get(data.id).deleteChest();
+                            this.syncObjects.delete(data.id);
+                        }
                         break;
                 }
             } catch (e) {
