@@ -1,10 +1,11 @@
 import { OtherPlayer } from './otherPlayer';
 import { Player } from './player';
-import { CreateOtherPlayer, ServerMessage, ClientMessage, UpdateOtherPlayer, UserDisconnected } from '../helpers/types';
+import { ServerMessage, ClientMessage, DTO } from '../helpers/types';
+import { Chest } from './chest';
 
 export interface GamePlayerData {
     id: string;
-    coordinates: { x: number; y: number };
+    coordinates: { x: number; y: number; directionX: -1 | 1 };
     health: number;
     directionX: -1 | 1;
 }
@@ -22,16 +23,15 @@ export class Connection {
 
     constructor() {
         this.initLocalData();
-
-        setTimeout(() => {
-            this.initConnection();
-            this.initCallbacks();
-        }, 500);
     }
 
     public send(message: ClientMessage): void {
         if (this.socket?.readyState === WebSocket.OPEN) {
-            this.socket.send(JSON.stringify(message));
+            const messageDTO: DTO = {
+                messageType: message.messageType,
+                data: JSON.stringify(message),
+            };
+            this.socket.send(JSON.stringify(messageDTO));
         }
     }
 
@@ -43,12 +43,18 @@ export class Connection {
 
     public initScene(scene: Phaser.Scene): Player {
         this.scene = scene;
+        this.startConnection();
         return new Player(
             scene,
             this.gamePlayerData.coordinates.x,
             this.gamePlayerData.coordinates.y,
             this.gamePlayerData.id
         );
+    }
+
+    private startConnection(): void {
+        this.initConnection();
+        this.initCallbacks();
     }
 
     private initLocalData(): void {
@@ -59,7 +65,7 @@ export class Connection {
         } else {
             this.gamePlayerData = {
                 id: uid(),
-                coordinates: { x: 200, y: 600 },
+                coordinates: { x: 200, y: 600, directionX: 1 },
                 health: 100,
                 directionX: 1,
             };
@@ -85,7 +91,7 @@ export class Connection {
 
     private initCallbacks(): void {
         this.socket.onopen = (ev: Event) => {
-            this.send({ ...this.gamePlayerData, messageType: 'create_player' });
+            this.socket.send(JSON.stringify({ ...this.gamePlayerData, messageType: 'create_player' }));
             console.log('connected');
         };
 
@@ -107,7 +113,7 @@ export class Connection {
                             this.syncObjects.delete(data.id);
                         }
                         break;
-                    case 'update':
+                    case 'status':
                         if (!this.syncObjects.has(data.id)) {
                             this.syncObjects.set(
                                 data.id,
@@ -117,11 +123,35 @@ export class Connection {
                             if (this.syncObjects.get(data.id) instanceof OtherPlayer) {
                                 this.syncObjects
                                     .get(data.id)
-                                    .updatePlayer(data.coordinates.x, data.coordinates.y, data.health);
+                                    .updatePlayer(
+                                        data.coordinates.x,
+                                        data.coordinates.y,
+                                        data.coordinates.directionX,
+                                        data.health
+                                    );
                             }
                         }
-
                         break;
+                    case 'user_attack':
+                        if (this.syncObjects.get(data.id) instanceof OtherPlayer) {
+                            this.syncObjects.get(data.id).attack();
+                        }
+                        break;
+                    case 'create_chest':
+                        this.syncObjects.set(
+                            data.id,
+                            new Chest(this.scene, data.coordinates.x, data.coordinates.y, data.id)
+                        );
+                        break;
+                    case 'chest_destroy':
+                        if (this.syncObjects.get(data.id) instanceof Chest) {
+                            this.syncObjects.get(data.id).deleteChest();
+                            this.syncObjects.delete(data.id);
+                        }
+                        break;
+                    default:
+                        // @ts-ignore
+                        console.log(data.messageType, 'not implemented');
                 }
             } catch (e) {
                 console.log(e);

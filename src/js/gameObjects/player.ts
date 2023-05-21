@@ -1,7 +1,7 @@
 import { Actor } from './actor';
 import { Text } from './text';
 import { EVENTS_NAME } from '../../consts';
-import { ClientMessage } from '../helpers/types';
+import { ClientMessage, UserAttack } from '../helpers/types';
 
 export class Player extends Actor {
     private keyW: Phaser.Input.Keyboard.Key;
@@ -28,7 +28,7 @@ export class Player extends Actor {
         this.keySpace.on('down', (event: KeyboardEvent) => {
             this.anims.play('attack', true);
             this.scene.game.events.emit(EVENTS_NAME.attack);
-            this.sendUpdate(true);
+            this.sendAttack();
         });
 
         // PHYSICS
@@ -81,19 +81,25 @@ export class Player extends Actor {
         this.hpValue.setText(this.hp.toString());
     }
 
-    private sendUpdate(attack?: boolean): void {
+    private sendUpdate(): void {
         const newMessage: ClientMessage = {
             id: this.playerId,
-            messageType: 'update',
-            coordinates: { x: Math.round(this.x), y: Math.round(this.y) },
+            messageType: 'status',
+            coordinates: { x: Math.round(this.x), y: Math.round(this.y), directionX: this.scaleX as -1 | 1 },
             health: this.hp,
-            directionX: this.scaleX as -1 | 1,
-            playAttack: attack ?? false,
         };
         if (JSON.stringify(newMessage) !== JSON.stringify(this.lastSendMessage)) {
             this.lastSendMessage = newMessage;
             window.connection.send(newMessage);
         }
+    }
+
+    private sendAttack(): void {
+        const newMessage: UserAttack = {
+            id: this.playerId,
+            messageType: 'user_attack',
+        };
+        window.connection.send(newMessage);
     }
 
     private initAnimations(): void {

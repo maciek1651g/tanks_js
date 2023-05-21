@@ -22,14 +22,19 @@ export class OtherPlayer extends Actor {
         this.playerId = playerId;
     }
 
-    updatePlayer(x: number, y: number, hp: number): void {
+    updatePlayer(x: number, y: number, directionX: number, hp: number): void {
         // MOVEMENT update
         this.setPosition(x, y);
+        this.scaleX = directionX;
 
         // HP update
         this.hp = hp;
         this.hpValue.setPosition(this.x, this.y - this.height * 0.4);
         this.hpValue.setOrigin(0.8, 0.5);
+    }
+
+    attack(): void {
+        this.anims.play('attack', true);
     }
 
     deletePlayer(): void {
