@@ -14,7 +14,7 @@ export class Player extends Actor {
     private hpValue: Text;
 
     private lastSendMessage: ClientMessage;
-    private playerId: string;
+    public readonly playerId: string;
 
     constructor(scene: Phaser.Scene, x: number, y: number, playerId: string) {
         super(scene, x, y, 'king');

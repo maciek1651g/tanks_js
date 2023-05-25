@@ -2,6 +2,8 @@ import { OtherPlayer } from './otherPlayer';
 import { Player } from './player';
 import { ServerMessage, ClientMessage, DTO } from '../helpers/types';
 import { Chest } from './chest';
+import { BaseScene } from '../scenes/level1/level1';
+import { Enemy } from './enemy';
 
 export interface GamePlayerData {
     id: string;
@@ -18,7 +20,7 @@ export class Connection {
     socket: WebSocket;
     syncObjects: Map<string, any> = new Map();
     gamePlayerData: GamePlayerData;
-    scene: Phaser.Scene;
+    scene: BaseScene;
     localStorage = window.sessionStorage;
 
     constructor() {
@@ -41,7 +43,7 @@ export class Connection {
         }
     }
 
-    public initScene(scene: Phaser.Scene): Player {
+    public initScene(scene: BaseScene): Player {
         this.scene = scene;
         this.startConnection();
         return new Player(
@@ -102,52 +104,38 @@ export class Connection {
 
                 switch (data.messageType) {
                     case 'create_player':
-                        this.syncObjects.set(
-                            data.id,
-                            new OtherPlayer(this.scene, data.coordinates.x, data.coordinates.y, data.id)
-                        );
+                        this.scene.spawnOtherPlayer(data.id, data.coordinates.x, data.coordinates.y);
                         break;
                     case 'user_disconnected':
-                        if (this.syncObjects.has(data.id)) {
-                            this.syncObjects.get(data.id).deletePlayer();
-                            this.syncObjects.delete(data.id);
-                        }
+                        this.scene.deleteOtherPlayer(data.id);
                         break;
                     case 'status':
-                        if (!this.syncObjects.has(data.id)) {
-                            this.syncObjects.set(
-                                data.id,
-                                new OtherPlayer(this.scene, data.coordinates.x, data.coordinates.y, data.id)
+                        this.scene.otherPlayers
+                            .get(data.id)
+                            .updatePlayer(
+                                data.coordinates.x,
+                                data.coordinates.y,
+                                data.coordinates.directionX,
+                                data.health
                             );
-                        } else {
-                            if (this.syncObjects.get(data.id) instanceof OtherPlayer) {
-                                this.syncObjects
-                                    .get(data.id)
-                                    .updatePlayer(
-                                        data.coordinates.x,
-                                        data.coordinates.y,
-                                        data.coordinates.directionX,
-                                        data.health
-                                    );
-                            }
-                        }
                         break;
                     case 'user_attack':
-                        if (this.syncObjects.get(data.id) instanceof OtherPlayer) {
-                            this.syncObjects.get(data.id).attack();
-                        }
+                        this.scene.otherPlayers.get(data.id).attack();
                         break;
                     case 'create_chest':
-                        this.syncObjects.set(
-                            data.id,
-                            new Chest(this.scene, data.coordinates.x, data.coordinates.y, data.id)
-                        );
+                        this.scene.spawnChest(data.id, data.coordinates.x, data.coordinates.y);
                         break;
                     case 'chest_destroy':
-                        if (this.syncObjects.get(data.id) instanceof Chest) {
-                            this.syncObjects.get(data.id).deleteChest();
-                            this.syncObjects.delete(data.id);
-                        }
+                        this.scene.deleteChest(data.id);
+                        break;
+                    case 'mob_create':
+                        this.scene.spawnEnemy(data.id, data.coordinates.x, data.coordinates.y, data.health);
+                        break;
+                    case 'mob_destroy':
+                        this.scene.deleteEnemy(data.id);
+                        break;
+                    case 'game_master':
+                        this.scene.gameMaster = true;
                         break;
                     default:
                         // @ts-ignore

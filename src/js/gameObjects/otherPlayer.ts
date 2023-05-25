@@ -28,7 +28,10 @@ export class OtherPlayer extends Actor {
         this.scaleX = directionX;
 
         // HP update
-        this.hp = hp;
+        if (hp !== this.hp) {
+            this.hp = hp;
+            this.hpValue.setText(this.hp.toString());
+        }
         this.hpValue.setPosition(this.x, this.y - this.height * 0.4);
         this.hpValue.setOrigin(0.8, 0.5);
     }

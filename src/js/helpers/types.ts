@@ -1,6 +1,6 @@
-export type ClientMessage = UpdateMyPlayer | CreateMyPlayer | UserAttack | GrabChest;
+export type ClientMessage = UpdateMyPlayer | CreateMyPlayer | UserAttack | GrabChest | UserDamage;
 
-export type ClientMessageTypes = 'status' | 'create_player' | 'user_attack' | 'chest_grab';
+export type ClientMessageTypes = 'status' | 'create_player' | 'user_attack' | 'chest_grab' | 'user_damage';
 
 export interface ClientMessageBase {
     id: string;
@@ -15,6 +15,12 @@ export interface UpdateMyPlayer extends ClientMessageBase {
 
 export interface UserAttack extends ClientMessageBase {
     messageType: 'user_attack';
+}
+
+export interface UserDamage extends ClientMessageBase {
+    messageType: 'user_damage';
+    damage: number;
+    targetId: string;
 }
 
 export interface CreateMyPlayer extends ClientMessageBase {
@@ -41,11 +47,23 @@ export type ServerMessage =
     | UserDisconnected
     | UserAttackServer
     | CreateChest
-    | DeleteChest;
+    | DeleteChest
+    | CreateEnemy
+    | DeleteEnemy
+    | GameMaster;
 
 export interface ServerMessageBase {
     id: string;
-    messageType: 'status' | 'create_player' | 'user_disconnected' | 'user_attack' | 'create_chest' | 'chest_destroy';
+    messageType:
+        | 'status'
+        | 'create_player'
+        | 'user_disconnected'
+        | 'user_attack'
+        | 'create_chest'
+        | 'chest_destroy'
+        | 'mob_create'
+        | 'mob_destroy'
+        | 'game_master';
 }
 
 export interface UpdateOtherPlayer extends ServerMessageBase {
@@ -75,6 +93,20 @@ export interface CreateChest extends ServerMessageBase {
 
 export interface DeleteChest extends ServerMessageBase {
     messageType: 'chest_destroy';
+}
+
+export interface CreateEnemy extends ServerMessageBase {
+    messageType: 'mob_create';
+    coordinates: { x: number; y: number };
+    health: number;
+}
+
+export interface DeleteEnemy extends ServerMessageBase {
+    messageType: 'mob_destroy';
+}
+
+export interface GameMaster extends ServerMessageBase {
+    messageType: 'game_master';
 }
 
 // TODO
