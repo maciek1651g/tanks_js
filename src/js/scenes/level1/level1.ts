@@ -4,11 +4,13 @@ import { EVENTS_NAME } from '../../../consts';
 import { Enemy } from '../../gameObjects/enemy';
 import { Chest } from '../../gameObjects/chest';
 import { OtherPlayer } from '../../gameObjects/otherPlayer';
+import Group = Phaser.GameObjects.Group;
+import { UserDamage } from '../../helpers/types';
 
 export interface BaseScene extends Scene {
-    otherPlayers: Map<string, OtherPlayer>;
-    chests: Map<string, Chest>;
-    enemies: Map<string, Enemy>;
+    otherPlayers: Group;
+    chests: Group;
+    enemies: Group;
     spawnChest: (chestId: string, x: number, y: number) => void;
     spawnOtherPlayer: (otherPlayerId: string, x: number, y: number) => void;
     spawnEnemy: (enemyId: string, x: number, y: number, health: number) => void;
@@ -16,6 +18,7 @@ export interface BaseScene extends Scene {
     deleteChest: (chestId: string) => void;
     deleteEnemy: (enemyId: string) => void;
     gameMaster: boolean;
+    setGameMaster: (value: boolean) => void;
 }
 
 export class Level1 extends Scene implements BaseScene {
@@ -26,9 +29,9 @@ export class Level1 extends Scene implements BaseScene {
     private wallsLayer!: Tilemaps.TilemapLayer;
     private groundLayer!: Tilemaps.TilemapLayer;
 
-    public otherPlayers: Map<string, OtherPlayer> = new Map();
-    public chests: Map<string, Chest> = new Map();
-    public enemies: Map<string, Enemy> = new Map();
+    public otherPlayers = new Group(this);
+    public chests = new Group(this);
+    public enemies = new Group(this);
 
     public gameMaster = false;
 
@@ -43,6 +46,16 @@ export class Level1 extends Scene implements BaseScene {
         // this.initChests();
         // this.initEnemies();
         this.initCamera();
+
+        this.physics.add.collider(this.player, this.enemies, (obj1, obj2) => {
+            const userDamage: UserDamage = {
+                id: (obj2 as Enemy).id,
+                messageType: 'user_damage',
+                damage: 1,
+                targetId: (obj1 as Player).id,
+            };
+            window.connection.send(userDamage);
+        });
     }
 
     update(): void {
@@ -112,13 +125,13 @@ export class Level1 extends Scene implements BaseScene {
 
     spawnOtherPlayer(otherPlayerId: string, x: number, y: number): OtherPlayer {
         const otherPlayer = new OtherPlayer(this, x, y, otherPlayerId);
-        this.otherPlayers.set(otherPlayerId, otherPlayer);
+        this.otherPlayers.add(otherPlayer);
         return otherPlayer;
     }
 
     spawnChest(chestId: string, x: number, y: number): Chest {
         const chest = new Chest(this, x, y, chestId);
-        this.chests.set(chestId, chest);
+        this.chests.add(chest);
 
         this.physics.add.overlap(this.player, chest, (obj1, obj2) => {
             this.game.events.emit(EVENTS_NAME.chestLoot);
@@ -131,28 +144,50 @@ export class Level1 extends Scene implements BaseScene {
 
     spawnEnemy(enemyId: string, x: number, y: number, health: number): Enemy {
         const enemy = new Enemy(this, x, y, enemyId, health, 'tiles_spr', this.player, 503);
-        this.enemies.set(enemyId, enemy);
-
-        this.physics.add.collider(enemy, this.wallsLayer);
-        this.physics.add.collider(enemy, Array.from(this.enemies.values()));
-        this.physics.add.collider(this.player, enemy, (obj1, obj2) => {
-            (obj1 as Player).getDamage(1);
-        });
+        this.enemies.add(enemy);
         return enemy;
     }
 
     deleteOtherPlayer(otherPlayerId: string): void {
-        this.otherPlayers.get(otherPlayerId)?.deletePlayer();
-        this.otherPlayers.delete(otherPlayerId);
+        const otherPlayer = this.children.getByName(otherPlayerId) as OtherPlayer;
+        if (otherPlayer) {
+            this.otherPlayers.remove(otherPlayer);
+            otherPlayer.deletePlayer();
+        }
     }
 
     deleteChest(chestId: string): void {
-        this.chests.get(chestId)?.deleteChest();
-        this.chests.delete(chestId);
+        const chest = this.children.getByName(chestId) as Chest;
+        if (chest) {
+            this.chests.remove(chest);
+            chest.deleteChest();
+        }
     }
 
     deleteEnemy(enemyId: string): void {
-        this.enemies.get(enemyId)?.deleteEnemy();
-        this.enemies.delete(enemyId);
+        const enemy = this.children.getByName(enemyId) as Enemy;
+        if (enemy) {
+            this.enemies.remove(enemy);
+            enemy.deleteEnemy();
+        }
+    }
+
+    setGameMaster(gameMaster: boolean): void {
+        if (gameMaster) {
+            this.physics.add.collider(this.enemies, this.wallsLayer);
+            this.physics.add.collider(this.enemies, this.enemies);
+            this.physics.add.collider(this.enemies, this.otherPlayers);
+
+            // this.physics.add.collider(this.enemies, this.otherPlayers, (obj1, obj2) => {
+            //     const userDamage: UserDamage = {
+            //         id: (obj1 as Enemy).id,
+            //         messageType: 'user_damage',
+            //         damage: 1,
+            //         targetId: (obj2 as OtherPlayer).id,
+            //     };
+            //     window.connection.send(userDamage);
+            // });
+        }
+        this.gameMaster = gameMaster;
     }
 }

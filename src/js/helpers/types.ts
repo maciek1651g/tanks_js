@@ -1,6 +1,20 @@
-export type ClientMessage = UpdateMyPlayer | CreateMyPlayer | UserAttack | GrabChest | UserDamage;
+export type ClientMessage =
+    | UpdateMyPlayer
+    | CreateMyPlayer
+    | UserAttack
+    | GrabChest
+    | EnemyDamage
+    | EnemyStatus
+    | UserDamage;
 
-export type ClientMessageTypes = 'status' | 'create_player' | 'user_attack' | 'chest_grab' | 'user_damage';
+export type ClientMessageTypes =
+    | 'status'
+    | 'create_player'
+    | 'user_attack'
+    | 'chest_grab'
+    | 'mob_damage'
+    | 'mob_status'
+    | 'user_damage';
 
 export interface ClientMessageBase {
     id: string;
@@ -23,6 +37,12 @@ export interface UserDamage extends ClientMessageBase {
     targetId: string;
 }
 
+export interface EnemyDamage extends ClientMessageBase {
+    messageType: 'mob_damage';
+    damage: number;
+    targetId: string;
+}
+
 export interface CreateMyPlayer extends ClientMessageBase {
     messageType: 'create_player';
     coordinates: { x: number; y: number; directionX: -1 | 1 };
@@ -31,6 +51,11 @@ export interface CreateMyPlayer extends ClientMessageBase {
 
 export interface GrabChest extends ClientMessageBase {
     messageType: 'chest_grab';
+}
+
+export interface EnemyStatus extends ClientMessageBase {
+    messageType: 'mob_status';
+    coordinates: { x: number; y: number; directionX: -1 | 1 };
 }
 
 // TODO
@@ -50,7 +75,10 @@ export type ServerMessage =
     | DeleteChest
     | CreateEnemy
     | DeleteEnemy
-    | GameMaster;
+    | GameMaster
+    | UpdateEnemyStatus
+    | UserHealthStatus
+    | UserDestroy;
 
 export interface ServerMessageBase {
     id: string;
@@ -63,7 +91,10 @@ export interface ServerMessageBase {
         | 'chest_destroy'
         | 'mob_create'
         | 'mob_destroy'
-        | 'game_master';
+        | 'game_master'
+        | 'mob_status'
+        | 'user_health'
+        | 'user_destroy';
 }
 
 export interface UpdateOtherPlayer extends ServerMessageBase {
@@ -107,6 +138,21 @@ export interface DeleteEnemy extends ServerMessageBase {
 
 export interface GameMaster extends ServerMessageBase {
     messageType: 'game_master';
+}
+
+export interface UpdateEnemyStatus extends ServerMessageBase {
+    messageType: 'mob_status';
+    coordinates: { x: number; y: number; directionX: -1 | 1 };
+}
+
+export interface UserHealthStatus extends ServerMessageBase {
+    messageType: 'user_health';
+    health: number;
+}
+
+export interface UserDestroy extends ServerMessageBase {
+    messageType: 'user_destroy';
+    health: number;
 }
 
 // TODO

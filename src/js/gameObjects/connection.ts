@@ -1,7 +1,6 @@
 import { OtherPlayer } from './otherPlayer';
 import { Player } from './player';
 import { ServerMessage, ClientMessage, DTO } from '../helpers/types';
-import { Chest } from './chest';
 import { BaseScene } from '../scenes/level1/level1';
 import { Enemy } from './enemy';
 
@@ -18,7 +17,6 @@ export const uid = () => {
 
 export class Connection {
     socket: WebSocket;
-    syncObjects: Map<string, any> = new Map();
     gamePlayerData: GamePlayerData;
     scene: BaseScene;
     localStorage = window.sessionStorage;
@@ -97,7 +95,7 @@ export class Connection {
             console.log('connected');
         };
 
-        this.socket.onmessage = (event) => {
+        this.socket.onmessage = async (event) => {
             try {
                 const data: ServerMessage = JSON.parse(event.data);
                 console.log(data);
@@ -110,17 +108,15 @@ export class Connection {
                         this.scene.deleteOtherPlayer(data.id);
                         break;
                     case 'status':
-                        this.scene.otherPlayers
-                            .get(data.id)
-                            .updatePlayer(
-                                data.coordinates.x,
-                                data.coordinates.y,
-                                data.coordinates.directionX,
-                                data.health
-                            );
+                        (this.scene.children.getByName(data.id) as OtherPlayer)?.updatePlayer(
+                            data.coordinates.x,
+                            data.coordinates.y,
+                            data.coordinates.directionX,
+                            data.health
+                        );
                         break;
                     case 'user_attack':
-                        this.scene.otherPlayers.get(data.id).attack();
+                        (this.scene.children.getByName(data.id) as OtherPlayer).attack();
                         break;
                     case 'create_chest':
                         this.scene.spawnChest(data.id, data.coordinates.x, data.coordinates.y);
@@ -134,8 +130,39 @@ export class Connection {
                     case 'mob_destroy':
                         this.scene.deleteEnemy(data.id);
                         break;
+                    case 'mob_status':
+                        (this.scene.children.getByName(data.id) as Enemy).updateEnemy(
+                            data.coordinates.x,
+                            data.coordinates.y,
+                            data.coordinates.directionX
+                        );
+                        break;
                     case 'game_master':
-                        this.scene.gameMaster = true;
+                        this.scene.setGameMaster(true);
+                        break;
+                    case 'user_health':
+                        if (data.id === this.gamePlayerData.id) {
+                            (this.scene.children.getByName(data.id) as Player).updateHealth(data.health);
+                        } else {
+                            (this.scene.children.getByName(data.id) as OtherPlayer).updateHealth(data.health);
+                        }
+
+                        break;
+                    case 'user_destroy':
+                        if (data.id === this.gamePlayerData.id) {
+                            // Player
+                            window.game.pause();
+                            this.socket.close();
+                            const restart = confirm('You died. Restart?');
+                            if (restart) {
+                                this.reset();
+                            } else {
+                                window.location.href = 'about:blank';
+                            }
+                        } else {
+                            // Other player
+                            this.scene.deleteOtherPlayer(data.id);
+                        }
                         break;
                     default:
                         // @ts-ignore
@@ -153,5 +180,11 @@ export class Connection {
         this.socket.onclose = (close) => {
             console.log('closed');
         };
+    }
+
+    reset(): void {
+        window.game.resume();
+        this.scene.setGameMaster(false);
+        this.scene.scene.restart();
     }
 }

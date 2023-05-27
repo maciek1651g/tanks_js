@@ -26,7 +26,7 @@ const gameConfig: Types.Core.GameConfig = {
     physics: {
         default: 'arcade',
         arcade: {
-            debug: false,
+            debug: true,
         },
     },
     render: {

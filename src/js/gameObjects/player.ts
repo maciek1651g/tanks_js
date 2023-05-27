@@ -16,6 +16,10 @@ export class Player extends Actor {
     private lastSendMessage: ClientMessage;
     public readonly playerId: string;
 
+    get id(): string {
+        return this.playerId;
+    }
+
     constructor(scene: Phaser.Scene, x: number, y: number, playerId: string) {
         super(scene, x, y, 'king');
         // KEYS
@@ -29,11 +33,11 @@ export class Player extends Actor {
             this.anims.play('attack', true);
             this.scene.game.events.emit(EVENTS_NAME.attack);
             this.sendAttack();
+            this.updateSize();
         });
 
         // PHYSICS
-        this.getBody().setSize(30, 30);
-        this.getBody().setOffset(8, 0);
+        this.updateSize();
 
         // HP
         this.hpValue = new Text(this.scene, this.x, this.y - this.height, this.hp.toString())
@@ -42,8 +46,13 @@ export class Player extends Actor {
 
         // Player id
         this.playerId = playerId;
+        this.setName(playerId);
 
         this.initAnimations();
+    }
+
+    updateSize(): void {
+        this.getBody().setSize(35, 30, true);
     }
 
     update(): void {
@@ -57,7 +66,6 @@ export class Player extends Actor {
         if (this.keyA?.isDown) {
             this.body.velocity.x = -speed;
             this.checkFlip();
-            this.getBody().setOffset(48, 15);
         }
         if (this.keyS?.isDown) {
             this.body.velocity.y = speed;
@@ -65,7 +73,6 @@ export class Player extends Actor {
         if (this.keyD?.isDown) {
             this.body.velocity.x = speed;
             this.checkFlip();
-            this.getBody().setOffset(15, 15);
         }
 
         // HP update
@@ -85,12 +92,19 @@ export class Player extends Actor {
         const newMessage: ClientMessage = {
             id: this.playerId,
             messageType: 'status',
-            coordinates: { x: Math.round(this.x), y: Math.round(this.y), directionX: this.scaleX as -1 | 1 },
+            coordinates: { x: Math.round(this.x), y: Math.round(this.y), directionX: this.flipX ? -1 : 1 },
             health: this.hp,
         };
         if (JSON.stringify(newMessage) !== JSON.stringify(this.lastSendMessage)) {
             this.lastSendMessage = newMessage;
             window.connection.send(newMessage);
+        }
+    }
+
+    updateHealth(hp: number): void {
+        if (hp !== this.hp) {
+            this.hp = hp;
+            this.hpValue.setText(this.hp.toString());
         }
     }
 
