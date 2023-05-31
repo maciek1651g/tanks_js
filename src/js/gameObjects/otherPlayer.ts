@@ -10,7 +10,7 @@ export class OtherPlayer extends Actor {
         return this.playerId;
     }
 
-    constructor(scene: Phaser.Scene, x: number, y: number, playerId: string) {
+    constructor(scene: Phaser.Scene, x: number, y: number, playerId: string, hp: number) {
         super(scene, x, y, 'king');
 
         // PHYSICS
@@ -21,6 +21,7 @@ export class OtherPlayer extends Actor {
         this.hpValue = new Text(this.scene, this.x, this.y - this.height, this.hp.toString())
             .setFontSize(12)
             .setOrigin(0.8, 0.5);
+        this.updateHealth(hp);
 
         // Player id
         this.playerId = playerId;
@@ -31,7 +32,7 @@ export class OtherPlayer extends Actor {
         this.getBody().setSize(30, 30, true);
     }
 
-    updatePlayer(x: number, y: number, directionX: number, hp: number): void {
+    updatePlayer(x: number, y: number, directionX: number): void {
         // MOVEMENT update
         this.setPosition(x, y);
         this.flipX = directionX === -1;

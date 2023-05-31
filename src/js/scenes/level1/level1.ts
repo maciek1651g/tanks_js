@@ -12,13 +12,14 @@ export interface BaseScene extends Scene {
     chests: Group;
     enemies: Group;
     spawnChest: (chestId: string, x: number, y: number) => void;
-    spawnOtherPlayer: (otherPlayerId: string, x: number, y: number) => void;
+    spawnOtherPlayer: (otherPlayerId: string, x: number, y: number, hp: number) => void;
     spawnEnemy: (enemyId: string, x: number, y: number, health: number) => void;
     deleteOtherPlayer: (otherPlayerId: string) => void;
     deleteChest: (chestId: string) => void;
     deleteEnemy: (enemyId: string) => void;
     gameMaster: boolean;
     setGameMaster: (value: boolean) => void;
+    updateScore: (score: number) => void;
 }
 
 export class Level1 extends Scene implements BaseScene {
@@ -123,8 +124,8 @@ export class Level1 extends Scene implements BaseScene {
     //     });
     // }
 
-    spawnOtherPlayer(otherPlayerId: string, x: number, y: number): OtherPlayer {
-        const otherPlayer = new OtherPlayer(this, x, y, otherPlayerId);
+    spawnOtherPlayer(otherPlayerId: string, x: number, y: number, hp: number): OtherPlayer {
+        const otherPlayer = new OtherPlayer(this, x, y, otherPlayerId, hp);
         this.otherPlayers.add(otherPlayer);
         return otherPlayer;
     }
@@ -134,9 +135,9 @@ export class Level1 extends Scene implements BaseScene {
         this.chests.add(chest);
 
         this.physics.add.overlap(this.player, chest, (obj1, obj2) => {
-            this.game.events.emit(EVENTS_NAME.chestLoot);
+            // this.game.events.emit(EVENTS_NAME.chestLoot);
             obj2.destroy();
-            window.connection.send({ id: chest.chestId, messageType: 'chest_grab' });
+            window.connection.send({ id: chest.chestId, messageType: 'chest_grab', playerId: (obj1 as Player).id });
         });
 
         return chest;
@@ -189,5 +190,9 @@ export class Level1 extends Scene implements BaseScene {
             // });
         }
         this.gameMaster = gameMaster;
+    }
+
+    updateScore(score: number): void {
+        this.game.events.emit(EVENTS_NAME.scoreChange, score);
     }
 }

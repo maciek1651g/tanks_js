@@ -93,7 +93,6 @@ export class Player extends Actor {
             id: this.playerId,
             messageType: 'status',
             coordinates: { x: Math.round(this.x), y: Math.round(this.y), directionX: this.flipX ? -1 : 1 },
-            health: this.hp,
         };
         if (JSON.stringify(newMessage) !== JSON.stringify(this.lastSendMessage)) {
             this.lastSendMessage = newMessage;

@@ -4,12 +4,12 @@ import { EVENTS_NAME } from '../../../consts';
 
 export class UIScene extends Scene {
     private score!: Score;
-    private chestLootHandler: () => void;
+    private chestLootHandler: (score: number) => void;
 
     constructor() {
         super('ui-scene');
-        this.chestLootHandler = () => {
-            this.score.changeValue(ScoreOperations.INCREASE, 10);
+        this.chestLootHandler = (score: number) => {
+            this.score.setNeWScore(score);
         };
     }
 
@@ -17,7 +17,8 @@ export class UIScene extends Scene {
         this.score = new Score(this, 20, 20, 0);
         this.initListeners();
     }
+
     private initListeners(): void {
-        this.game.events.on(EVENTS_NAME.chestLoot, this.chestLootHandler, this);
+        this.game.events.on(EVENTS_NAME.scoreChange, this.chestLootHandler, this);
     }
 }

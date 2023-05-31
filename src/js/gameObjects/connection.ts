@@ -102,7 +102,7 @@ export class Connection {
 
                 switch (data.messageType) {
                     case 'create_player':
-                        this.scene.spawnOtherPlayer(data.id, data.coordinates.x, data.coordinates.y);
+                        this.scene.spawnOtherPlayer(data.id, data.coordinates.x, data.coordinates.y, data.health);
                         break;
                     case 'user_disconnected':
                         this.scene.deleteOtherPlayer(data.id);
@@ -111,8 +111,7 @@ export class Connection {
                         (this.scene.children.getByName(data.id) as OtherPlayer)?.updatePlayer(
                             data.coordinates.x,
                             data.coordinates.y,
-                            data.coordinates.directionX,
-                            data.health
+                            data.coordinates.directionX
                         );
                         break;
                     case 'user_attack':
@@ -163,6 +162,9 @@ export class Connection {
                             // Other player
                             this.scene.deleteOtherPlayer(data.id);
                         }
+                        break;
+                    case 'user_score':
+                        this.scene.updateScore(data.score);
                         break;
                     default:
                         // @ts-ignore

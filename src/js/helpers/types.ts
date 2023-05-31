@@ -24,7 +24,6 @@ export interface ClientMessageBase {
 export interface UpdateMyPlayer extends ClientMessageBase {
     messageType: 'status';
     coordinates: { x: number; y: number; directionX: -1 | 1 };
-    health: number;
 }
 
 export interface UserAttack extends ClientMessageBase {
@@ -51,6 +50,7 @@ export interface CreateMyPlayer extends ClientMessageBase {
 
 export interface GrabChest extends ClientMessageBase {
     messageType: 'chest_grab';
+    playerId: string;
 }
 
 export interface EnemyStatus extends ClientMessageBase {
@@ -78,7 +78,8 @@ export type ServerMessage =
     | GameMaster
     | UpdateEnemyStatus
     | UserHealthStatus
-    | UserDestroy;
+    | UserDestroy
+    | UserScore;
 
 export interface ServerMessageBase {
     id: string;
@@ -94,13 +95,13 @@ export interface ServerMessageBase {
         | 'game_master'
         | 'mob_status'
         | 'user_health'
-        | 'user_destroy';
+        | 'user_destroy'
+        | 'user_score';
 }
 
 export interface UpdateOtherPlayer extends ServerMessageBase {
     messageType: 'status';
     coordinates: { x: number; y: number; directionX: -1 | 1 };
-    health: number;
 }
 
 export interface CreateOtherPlayer extends ServerMessageBase {
@@ -153,6 +154,11 @@ export interface UserHealthStatus extends ServerMessageBase {
 export interface UserDestroy extends ServerMessageBase {
     messageType: 'user_destroy';
     health: number;
+}
+
+export interface UserScore extends ServerMessageBase {
+    messageType: 'user_score';
+    score: number;
 }
 
 // TODO
