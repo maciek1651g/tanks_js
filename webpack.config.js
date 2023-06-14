@@ -54,7 +54,7 @@ module.exports = {
     },
     devServer: {
         static: path.resolve(__dirname, './dist'),
-        port: 8081,
+        port: 8082,
     },
     plugins: [
         new CopyWebpackPlugin({

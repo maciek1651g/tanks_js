@@ -5,7 +5,8 @@ export type ClientMessage =
     | GrabChest
     | EnemyDamage
     | EnemyStatus
-    | UserDamage;
+    | UserDamage
+    | ChangeServer;
 
 export type ClientMessageTypes =
     | 'status'
@@ -14,7 +15,8 @@ export type ClientMessageTypes =
     | 'chest_grab'
     | 'mob_damage'
     | 'mob_status'
-    | 'user_damage';
+    | 'user_damage'
+    | 'change_server';
 
 export interface ClientMessageBase {
     id: string;
@@ -56,6 +58,10 @@ export interface GrabChest extends ClientMessageBase {
 export interface EnemyStatus extends ClientMessageBase {
     messageType: 'mob_status';
     coordinates: { x: number; y: number; directionX: -1 | 1 };
+}
+
+export interface ChangeServer extends ClientMessageBase {
+    messageType: 'change_server';
 }
 
 // TODO

@@ -20,9 +20,13 @@ export class Connection {
     gamePlayerData: GamePlayerData;
     scene: BaseScene;
     localStorage = window.sessionStorage;
+    currentServerUrl = '';
+    currentWebSocketProtocol = '';
+    servers: string[] = [];
 
     constructor() {
         this.initLocalData();
+        this.initServers();
     }
 
     public send(message: ClientMessage): void {
@@ -52,6 +56,30 @@ export class Connection {
         );
     }
 
+    public changeServer(): void {
+        const playerId = this.gamePlayerData.id;
+        const serverUrl = this.servers.find((url) => url !== this.currentServerUrl);
+        const encodedParam1 = encodeURIComponent(playerId);
+        const encodedParam2 = encodeURIComponent(serverUrl);
+
+        fetch(
+            `${window.location.protocol}//${this.currentServerUrl}/api/users:migrate?id=${encodedParam1}&url=${encodedParam2}`,
+            {
+                method: 'GET',
+            }
+        )
+            .then((response) => {
+                if (response.status === 200) {
+                    this.socket.close();
+                    this.currentServerUrl = serverUrl;
+                    this.reset();
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }
+
     private startConnection(): void {
         this.initConnection();
         this.initCallbacks();
@@ -73,19 +101,24 @@ export class Connection {
         }
     }
 
-    private initConnection(): void {
+    private initServers(): void {
         let hostname = window.location.hostname;
-        let port = '';
-        let protocol = 'wss';
+        let port = window.location.port;
+        this.currentWebSocketProtocol = 'wss';
 
         if (hostname === 'localhost') {
-            port = ':8080';
-            protocol = 'ws';
-        } else if (window.location.hostname.includes('github.io')) {
-            hostname = 'tanks-maciejdominiak.b4a.run';
+            port = '8080';
+            this.currentWebSocketProtocol = 'ws';
+            this.servers = [`${hostname}:8080`, `${hostname}:8081`];
+        } else {
+            this.servers = [`tanks-maciejdominiak.b4a.run:${port}`, `tanksgo-production.up.railway.app:${port}`];
         }
 
-        const url = `${protocol}://${hostname}${port}/tanks/objects:exchange`;
+        this.currentServerUrl = this.servers[0];
+    }
+
+    private initConnection(): void {
+        const url = `${this.currentWebSocketProtocol}://${this.currentServerUrl}/tanks/objects:exchange`;
         this.socket = new WebSocket(url);
     }
 
@@ -181,6 +214,7 @@ export class Connection {
 
         this.socket.onclose = (close) => {
             console.log('closed');
+            this.reset();
         };
     }
 
