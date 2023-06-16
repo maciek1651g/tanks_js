@@ -20,7 +20,7 @@ export class Player extends Actor {
         return this.playerId;
     }
 
-    constructor(scene: Phaser.Scene, x: number, y: number, playerId: string) {
+    constructor(scene: Phaser.Scene, x: number, y: number, playerId: string, hp: number) {
         super(scene, x, y, 'king');
         // KEYS
         this.keyW = this.scene.input.keyboard.addKey('W');
@@ -40,6 +40,7 @@ export class Player extends Actor {
         this.updateSize();
 
         // HP
+        this.hp = hp;
         this.hpValue = new Text(this.scene, this.x, this.y - this.height, this.hp.toString())
             .setFontSize(12)
             .setOrigin(0.8, 0.5);
@@ -104,6 +105,7 @@ export class Player extends Actor {
         if (hp !== this.hp) {
             this.hp = hp;
             this.hpValue.setText(this.hp.toString());
+            window.connection.updateHealth(this.hp);
         }
     }
 

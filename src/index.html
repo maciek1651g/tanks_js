@@ -14,12 +14,14 @@
                 top: 0;
                 right: 0;
                 z-index: 100;
+                background-color: #ddd;
+                cursor: pointer;
             }
         </style>
         <title>Tanks</title>
     </head>
     <body>
-        <button onclick="window.connection.changeServer()" class="change-server-button">Change server</button>
+        <div onclick="window.connection.changeServer()" class="change-server-button">Change server</div>
         <div id="game"></div>
     </body>
 </html>

@@ -11,6 +11,7 @@ export interface BaseScene extends Scene {
     otherPlayers: Group;
     chests: Group;
     enemies: Group;
+    player: Player;
     spawnChest: (chestId: string, x: number, y: number) => void;
     spawnOtherPlayer: (otherPlayerId: string, x: number, y: number, hp: number) => void;
     spawnEnemy: (enemyId: string, x: number, y: number, health: number) => void;
@@ -20,10 +21,11 @@ export interface BaseScene extends Scene {
     gameMaster: boolean;
     setGameMaster: (value: boolean) => void;
     updateScore: (score: number) => void;
+    initPlayer: (player: Player) => void;
 }
 
 export class Level1 extends Scene implements BaseScene {
-    private player!: Player;
+    public player!: Player;
 
     private map!: Tilemaps.Tilemap;
     private tileset!: Tilemaps.Tileset;
@@ -42,7 +44,11 @@ export class Level1 extends Scene implements BaseScene {
 
     create(): void {
         this.initMap();
-        this.player = window.connection.initScene(this);
+        window.connection.initScene(this);
+    }
+
+    initPlayer(player: Player): void {
+        this.player = player;
         this.physics.add.collider(this.player, this.wallsLayer);
         // this.initChests();
         // this.initEnemies();
@@ -60,7 +66,9 @@ export class Level1 extends Scene implements BaseScene {
     }
 
     update(): void {
-        this.player.update();
+        if (this.player) {
+            this.player.update();
+        }
     }
 
     private initMap(): void {

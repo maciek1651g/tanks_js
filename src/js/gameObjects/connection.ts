@@ -39,28 +39,27 @@ export class Connection {
         }
     }
 
+    public updateHealth(health: number): void {
+        this.gamePlayerData.health = health;
+        this.localStorage.setItem('game_player_data', JSON.stringify(this.gamePlayerData));
+    }
+
     public close(): void {
         if (this.socket.readyState === WebSocket.OPEN) {
             this.socket.close();
         }
     }
 
-    public initScene(scene: BaseScene): Player {
+    public initScene(scene: BaseScene): void {
         this.scene = scene;
         this.startConnection();
-        return new Player(
-            scene,
-            this.gamePlayerData.coordinates.x,
-            this.gamePlayerData.coordinates.y,
-            this.gamePlayerData.id
-        );
     }
 
     public changeServer(): void {
         const playerId = this.gamePlayerData.id;
         const serverUrl = this.servers.find((url) => url !== this.currentServerUrl);
         const encodedParam1 = encodeURIComponent(playerId);
-        const encodedParam2 = encodeURIComponent(serverUrl);
+        const encodedParam2 = encodeURIComponent(window.location.protocol + '//' + serverUrl);
 
         fetch(
             `${window.location.protocol}//${this.currentServerUrl}/api/users:migrate?id=${encodedParam1}&url=${encodedParam2}`,
@@ -70,9 +69,9 @@ export class Connection {
         )
             .then((response) => {
                 if (response.status === 200) {
-                    this.socket.close();
+                    this.close();
                     this.currentServerUrl = serverUrl;
-                    this.reset();
+                    this.reset(true);
                 }
             })
             .catch((error) => {
@@ -118,20 +117,31 @@ export class Connection {
     }
 
     private initConnection(): void {
-        const url = `${this.currentWebSocketProtocol}://${this.currentServerUrl}/tanks/objects:exchange`;
-        this.socket = new WebSocket(url);
+        if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
+            const url = `${this.currentWebSocketProtocol}://${this.currentServerUrl}/tanks/objects:exchange`;
+            this.socket = new WebSocket(url);
+        }
     }
 
     private initCallbacks(): void {
         this.socket.onopen = (ev: Event) => {
             this.socket.send(JSON.stringify({ ...this.gamePlayerData, messageType: 'create_player' }));
+            this.scene.initPlayer(
+                new Player(
+                    this.scene,
+                    this.gamePlayerData.coordinates.x,
+                    this.gamePlayerData.coordinates.y,
+                    this.gamePlayerData.id,
+                    this.gamePlayerData.health
+                )
+            );
             console.log('connected');
         };
 
         this.socket.onmessage = async (event) => {
             try {
                 const data: ServerMessage = JSON.parse(event.data);
-                console.log(data);
+                // console.log(data);
 
                 switch (data.messageType) {
                     case 'create_player':
@@ -187,6 +197,7 @@ export class Connection {
                             this.socket.close();
                             const restart = confirm('You died. Restart?');
                             if (restart) {
+                                window.game.resume();
                                 this.reset();
                             } else {
                                 window.location.href = 'about:blank';
@@ -214,12 +225,17 @@ export class Connection {
 
         this.socket.onclose = (close) => {
             console.log('closed');
+            this.scene.updateScore(0);
             this.reset();
         };
     }
 
-    reset(): void {
-        window.game.resume();
+    reset(keepHealth = false): void {
+        if (!keepHealth) {
+            this.updateHealth(100);
+        }
+        this.close();
+        this.scene.player = undefined;
         this.scene.setGameMaster(false);
         this.scene.scene.restart();
     }
