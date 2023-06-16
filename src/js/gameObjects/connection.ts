@@ -111,7 +111,7 @@ export class Connection {
             this.currentWebSocketProtocol = 'ws';
             this.servers = [`${hostname}:8080`, `${hostname}:8081`];
         } else {
-            this.servers = [`tanks-maciejdominiak.b4a.run:${port}`, `tanksgo-production.up.railway.app:${port}`];
+            this.servers = [`tanksgo-production.up.railway.app:${port}`, `tanks-maciejdominiak.b4a.run:${port}`];
         }
 
         this.currentServerUrl = this.servers[0];
