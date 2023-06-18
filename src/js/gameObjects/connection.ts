@@ -35,7 +35,11 @@ export class Connection {
                 messageType: message.messageType,
                 data: JSON.stringify(message),
             };
-            this.socket.send(JSON.stringify(messageDTO));
+            try {
+                this.socket.send(JSON.stringify(messageDTO));
+            } catch (error) {
+                console.log(error);
+            }
         }
     }
 
@@ -141,7 +145,7 @@ export class Connection {
         this.socket.onmessage = async (event) => {
             try {
                 const data: ServerMessage = JSON.parse(event.data);
-                // console.log(data);
+                console.log(data.messageType);
 
                 switch (data.messageType) {
                     case 'create_player':
